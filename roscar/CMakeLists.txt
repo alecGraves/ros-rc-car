@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(record_video)
+project(ros_rc_car)
 
 add_definitions(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+find_package(catkin REQUIRED COMPONENTS roslaunch)
 find_package(catkin REQUIRED COMPONENTS
   image_transport
   roscpp
@@ -75,7 +76,7 @@ find_package(catkin REQUIRED COMPONENTS
 #   std_msgs
 # )
 
-##################################################################roslaunch_add_file_check(launch)
+roslaunch_add_file_check(launch)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##

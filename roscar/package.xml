@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>record_video</name>
+  <name>ros_rc_car</name>
   <version>0.0.0</version>
   <description>The observer package</description>
 
