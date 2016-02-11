@@ -122,8 +122,8 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
+	include
+	${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -145,9 +145,9 @@ add_executable(record_video src/record_video.cpp)
 #~ add_dependencies(pokestick_talker wiringPi)
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(record_video
-   ${catkin_LIBRARIES}
- )
+target_link_libraries(record_video
+	${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##

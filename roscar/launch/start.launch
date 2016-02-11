@@ -4,6 +4,6 @@
     <param name="baud" value="115200"/>
   </node>
   
-  <node pkg="rosserial_python" type="record_video" name="serial_node" /node>
+  <node pkg="roscar" type="record_video" name="record_video" /node>
 
 </launch>
