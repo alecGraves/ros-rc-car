@@ -6,19 +6,22 @@ clone the repository into catkin_ws/src
 
     cd ~/catkin_ws/src
     git clone --recursive https://github.com/shadySource/rx-arduino-ros/
-    cm
+    catkin_make -j $(nproc) -C "/home/$USER/catkin_ws"
 
 ### 2. How to set up Arduino IDE to flash image:
 http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup
 
 The gist of it:
 
-    cd /usr/share/arduino/libraries
-    rosrun rosserial_arduino make_libraries.py .
-    
-/usr/share/arduino/libraries is the default library folder location when you use 
+Install and run arduino:
 
     sudo apt-get install arduino
+    arduino
+
+Then install ros libraries:
+
+    cd ~/sketchbook/libraries
+    rosrun rosserial_arduino make_libraries.py .
 
 ### 3. Flash the image to the arduino
 
