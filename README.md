@@ -39,3 +39,5 @@ Run rosserial to recieve data from the arduino:
     rosrun rosrun rosserial_python serial_node.py /dev/ttyUSB0
     
 You may need to adjust the location of the arduino.
+
+    ls /dev/tty*
