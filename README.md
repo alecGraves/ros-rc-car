@@ -21,3 +21,11 @@ The gist of it:
     sudo apt-get install arduino
     
 (on a x64 16.04 system)
+
+### 3. Flash the image to the arduino
+
+Open IDE:
+
+    sudo arduino
+    
+Then open the image in the IDE and flash it to the arduino.
