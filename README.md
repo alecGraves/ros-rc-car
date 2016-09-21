@@ -5,7 +5,7 @@ This repository contians necessary instructions and code to interface a standard
 http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup
 The gist of it:
 
-    cd <sketchbook>/libraries
+    cd /usr/share/arduino/libraries
     rosrun rosserial_arduino make_libraries.py .
     
 /usr/share/arduino/libraries is the deffault library folder location when you use 
