@@ -19,8 +19,6 @@ The gist of it:
 /usr/share/arduino/libraries is the default library folder location when you use 
 
     sudo apt-get install arduino
-    
-(on a x64 16.04 system)
 
 ### 3. Flash the image to the arduino
 
@@ -29,3 +27,14 @@ Open IDE:
     sudo arduino
     
 Then open the image in the IDE and flash it to the arduino.
+
+### 4. Launch serial communication ros node
+Run roscore:
+
+    roscore
+
+Run rosserial to recieve data from the arduino:
+
+    rosrun rosrun rosserial_python serial_node.py /dev/ttyUSB0
+    
+You may need to adjust the location of the arduino.
