@@ -11,8 +11,6 @@ clone the repository into catkin_ws/src
 ### 2. How to set up Arduino IDE to flash image:
 http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup
 
-The gist of it:
-
 Install and run arduino:
 
     sudo apt-get install arduino
