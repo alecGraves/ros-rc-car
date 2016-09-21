@@ -25,7 +25,7 @@ Then install ros libraries:
 
 Open IDE:
 
-    sudo arduino
+    arduino
     
 Then open the image in the IDE and flash it to the arduino.
 
