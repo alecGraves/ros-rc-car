@@ -9,7 +9,7 @@ The gist of it:
     cd /usr/share/arduino/libraries
     rosrun rosserial_arduino make_libraries.py .
     
-/usr/share/arduino/libraries is the deffault library folder location when you use 
+/usr/share/arduino/libraries is the default library folder location when you use 
 
     sudo apt-get install arduino
     
