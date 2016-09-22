@@ -21,6 +21,10 @@ Then install ros libraries:
     cd ~/sketchbook/libraries
     rosrun rosserial_arduino make_libraries.py .
 
+Then configure to use the correct usb port:
+
+    perl -pi -e 's/COM1/ttyACM0/g' ~/.arduino/preferences.txt
+
 ### 3. Flash the image to the arduino
 
 Open IDE:
