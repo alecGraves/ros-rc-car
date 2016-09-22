@@ -37,7 +37,7 @@ Open IDE:
 
     arduino
 
-Then open the image in the IDE and flash it to the arduino.
+Then open the image (arduino_sketch_float32_working.ino) in the IDE and flash it to the arduino.
 
 ### 4. Launch serial communication ros node
 Run roscore:
