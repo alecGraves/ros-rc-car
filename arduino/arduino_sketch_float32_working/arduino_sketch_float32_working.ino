@@ -11,7 +11,7 @@
 #include <ros.h>
 #include <sensor_msgs/ChannelFloat32.h>
 
-const unsigned short NUM_CHANNELS = 1;
+const int NUM_CHANNELS = 1;
 //this program assumes you populate pin(s) 0 to NUM_CHANNELS.
 //you should only use digital pins (2-13 on arduino UNO)
 
@@ -23,6 +23,7 @@ ros::Publisher PubRecieverData( "reciever_data", &RecieverData);
 
 char msg_label[] = "miliseconds";
 
+float Data[NUM_CHANNELS];
   
 void setup()
 {
@@ -45,8 +46,6 @@ void loop()
   //   but the arduino UNO only has 2 interrupt ports.
   //
   ///////////////////////////////////////////////////////
-
-  float Data[NUM_CHANNELS];
 
   for(int i = 0; i < NUM_CHANNELS; i++)
   {
