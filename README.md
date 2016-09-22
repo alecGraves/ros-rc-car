@@ -40,7 +40,7 @@ Run roscore:
 
 Run rosserial to recieve data from the arduino:
 
-    rosrun rosrun rosserial_python serial_node.py /dev/ttyACM0
+    rosrun rosserial_python serial_node.py /dev/ttyACM0
     
 You may need to adjust the location of the arduino.
 
