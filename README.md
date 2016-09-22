@@ -27,10 +27,16 @@ Then configure to use the correct usb port:
 
 ### 3. Flash the image to the arduino
 
+Connect Arduino
+
+Change permissions on port:
+
+    sudo chmod 777 /dev/ttyACM*
+
 Open IDE:
 
     arduino
-    
+
 Then open the image in the IDE and flash it to the arduino.
 
 ### 4. Launch serial communication ros node

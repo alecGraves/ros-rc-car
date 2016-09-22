@@ -9,26 +9,27 @@
  */
 
 #include <ros.h>
-#include <std_msgs/UInt64MultiArray.h>
-//#include <std_msgs/MultiArrayDimension.h>
-//#include <std_msgs/MultiArrayLayout.h>
+#include <sensor_msgs/ChannelFloat32.h>
 
-const int NUM_CHANNELS = 1;
+const unsigned short NUM_CHANNELS = 1;
 //this program assumes you populate pin(s) 0 to NUM_CHANNELS.
-//you should only use digital pins (1-13 on arduino UNO)
+//you should only use digital pins (2-13 on arduino UNO)
 
 ros::NodeHandle  Nh;
 
-std_msgs::UInt64MultiArray RecieverData;
-ros::Publisher PubRecieverData( "RecieverData", &RecieverData);
+sensor_msgs::ChannelFloat32 RecieverData;
 
+ros::Publisher PubRecieverData( "reciever_data", &RecieverData);
+
+char msg_label[] = "miliseconds";
+
+  
 void setup()
 {
   Nh.initNode();
   Nh.advertise(PubRecieverData);
-
-  RecieverData.layout.dim[0].size = NUM_CHANNELS;
-
+  RecieverData.name = msg_label;
+  RecieverData.values_length = NUM_CHANNELS;  
 }
 
 void loop()
@@ -43,15 +44,22 @@ void loop()
   //   but the arduino UNO only has 2 interrupt ports.
   //
   ///////////////////////////////////////////////////////
+
+  float Data[NUM_CHANNELS];
+
   for(int i = 0; i < NUM_CHANNELS; i++)
   {
-    RecieverData.data[i] = pulseIn(i, HIGH, 20000);
+    int inpin = i;
+    inpin ++;
+    Data[i] = float(pulseIn(inpin, HIGH, 20000)/1000);
     // pulseIn returns 0 if timeout is reached.
     // 20000 is the timeout in microseconds.
     // i is the pin, so this assumes you use 
-    //   pin(s) 0 to NUM_CHANNELS.
-  }
- 
+    //   pin(s) 2 to NUM_CHANNELS.
+  } 
+  RecieverData.values = Data;
   PubRecieverData.publish(&RecieverData);
+  
   Nh.spinOnce();
+  
 }
