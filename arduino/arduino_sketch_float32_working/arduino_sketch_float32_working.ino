@@ -28,6 +28,7 @@ void setup()
 {
   Nh.initNode();
   Nh.advertise(PubRecieverData);
+  delay(100);
   RecieverData.name = msg_label;
   RecieverData.values_length = NUM_CHANNELS;  
 }
