@@ -8,7 +8,7 @@ clone the repository into catkin_ws/src
     git clone --recursive https://github.com/shadySource/rx-arduino-ros/
     catkin_make -j $(nproc) -C "/home/$USER/catkin_ws"
 
-### 2. How to set up Arduino IDE to flash image:
+### 2. How to set up Arduino IDE to flash sketch:
 http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup
 
 Install and run arduino:
