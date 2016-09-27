@@ -32,7 +32,7 @@ void setup()
   delay(100);
   RecieverData.name = msg_label;
   RecieverData.values_length = NUM_CHANNELS;
-  for (i = 0; i < NUM_CHANNELS; i++)
+  for (int i = 0; i < NUM_CHANNELS; i++)
   {
     int inpin = i;
     inpin +=4;
@@ -53,7 +53,7 @@ void loop()
   //
   ///////////////////////////////////////////////////////
 
-  for(int i = 0; i < NUM_CHANNELS; i++)
+  for (int i = 0; i < NUM_CHANNELS; i++)
   {
     int inpin = i;
     inpin += 4;
@@ -62,7 +62,7 @@ void loop()
     // 20000 is the timeout in microseconds.
     // i is the pin, so this assumes you use 
     //   pin(s) 2 to NUM_CHANNELS.
-  } 
+  }
   RecieverData.values = Data;
   PubRecieverData.publish(&RecieverData);
   
