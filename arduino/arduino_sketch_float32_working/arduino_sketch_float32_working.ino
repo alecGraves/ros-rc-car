@@ -11,9 +11,9 @@
 #include <ros.h>
 #include <sensor_msgs/ChannelFloat32.h>
 
-const int NUM_CHANNELS = 1;
+const int NUM_CHANNELS = 5;
 //this program assumes you populate pin(s) 0 to NUM_CHANNELS.
-//you should only use digital pins (2-13 on arduino UNO)
+//you should only use digital pins (4-13 on arduino UNO)
 
 ros::NodeHandle  Nh;
 
@@ -31,7 +31,13 @@ void setup()
   Nh.advertise(PubRecieverData);
   delay(100);
   RecieverData.name = msg_label;
-  RecieverData.values_length = NUM_CHANNELS;  
+  RecieverData.values_length = NUM_CHANNELS;
+  for (i = 0; i < NUM_CHANNELS; i++)
+  {
+    int inpin = i;
+    inpin +=4;
+    pinMode(inpin, INPUT);
+  }
 }
 
 void loop()
@@ -50,8 +56,8 @@ void loop()
   for(int i = 0; i < NUM_CHANNELS; i++)
   {
     int inpin = i;
-    inpin ++;
-    Data[i] = float(pulseIn(inpin, HIGH, 20000)/1000);
+    inpin += 4;
+    Data[i] = float(pulseIn(inpin, HIGH, 20000));
     // pulseIn returns 0 if timeout is reached.
     // 20000 is the timeout in microseconds.
     // i is the pin, so this assumes you use 
