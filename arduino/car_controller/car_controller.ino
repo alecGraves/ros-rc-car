@@ -1,6 +1,8 @@
 /* 
- * rosserial::std_msgs::Float64 Test
- * Receives a Float64 input, subtracts 1.0, and publishes it
+ * rosserial::std_msgs::Uint16 message
+ * Receives a pwm signal from input pins and publishes it
+ * Then calculates motor output signal and publishes it
+ * The motor signal is meant to be recieved and converted by an h bride
  */
 
 #include <ros.h>
