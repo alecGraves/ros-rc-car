@@ -27,6 +27,7 @@ unsigned int ModePulse;
 unsigned int ThrottleRight;
 unsigned int ThrottleLeft;
 unsigned int Factor;
+boolean Armed;
 boolean Autonomous;
 
 
@@ -74,12 +75,21 @@ void GetInput()
   
   ModePulse = pulseIn(MODE_PIN , HIGH, 20000) - RX_PWM_ERROR;
   PubPulse(MODE_PIN, ModePulse);
+  
+  if (abs(ModePulse - MID_PWM) < 100) //ModePulse ~= mid pwm
+  {
+    Armed = TRUE;
+  }
+  else 
+  {
+    Armed = FALSE;
+  }
 }
 
 void Output()
 {
   //activation controlled by mode channel
-  if (abs(ModePulse - MID_PWM) < 100 && G2G == true) //ModePulse ~= mid pwm
+  if (Armed) //ModePulse ~= mid pwm
   {
     digitalWrite(LED_PIN, HIGH);
 
