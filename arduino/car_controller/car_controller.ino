@@ -1,8 +1,6 @@
 /* 
- * rosserial::std_msgs::Uint16 message
- * Receives a pwm signal from input pins and publishes it
- * Then calculates motor output signal and publishes it
- * The motor signal is meant to be recieved and converted by an h bride
+ * rosserial::std_msgs::Float64 Test
+ * Receives a Float64 input, subtracts 1.0, and publishes it
  */
 
 #include <ros.h>
@@ -12,6 +10,7 @@ const int LED_PIN = 13;
 const int STEERING_PIN = 2;
 const int THROTTLE_PIN = 3;
 const int MODE_PIN = 4;
+const int RECORDING_PIN = 5;
 const int LEFT_MOTOR_PIN = 9;
 const int RIGHT_MOTOR_PIN = 10;
 
@@ -26,10 +25,12 @@ const int SPEED_LIMIT = 100;
 unsigned int SteeringPulse;
 unsigned int ThrottlePulse;
 unsigned int ModePulse;
+unsigned int RecordingPulse;
 unsigned int ThrottleRight;
 unsigned int ThrottleLeft;
 unsigned int Factor;
 boolean Autonomous;
+boolean GTG = true;
 
 
 ros::NodeHandle nh;
@@ -38,6 +39,7 @@ std_msgs::UInt16 PulseMsg;
 ros::Publisher SteeringPub("steering_pwm", &PulseMsg);
 ros::Publisher ThrottlePub("throttle_pwm", &PulseMsg);
 ros::Publisher ModePub("mode_pwm", &PulseMsg);
+ros::Publisher RecordingStatePub("recording_state", &PulseMsg);
 
 void StartRos()
 {
@@ -45,6 +47,7 @@ void StartRos()
   nh.advertise(SteeringPub);
   nh.advertise(ThrottlePub);
   nh.advertise(ModePub);
+  nh.advertise(RecordingStatePub);
 }
 
 void PubPulse(const int &_channel, const uint16_t &_pulse)
@@ -63,7 +66,10 @@ void PubPulse(const int &_channel, const uint16_t &_pulse)
   {
     ModePub.publish( &PulseMsg);
   }
-  
+  else if (_channel == RECORDING_PIN)
+  {
+    RecordingStatePub.publish( &PulseMsg);
+  }
 }
 
 void GetInput()
@@ -76,12 +82,15 @@ void GetInput()
   
   ModePulse = pulseIn(MODE_PIN , HIGH, 20000) - RX_PWM_ERROR;
   PubPulse(MODE_PIN, ModePulse);
+  
+  RecordingPulse = pulseIn(RECORDING_PIN , HIGH, 20000) - RX_PWM_ERROR;
+  PubPulse(RECORDING_PIN, RecordingPulse);
 }
 
 void Output()
 {
   //activation controlled by mode channel
-  if (abs(ModePulse - MID_PWM) < 100 && G2G == true) //ModePulse ~= mid pwm
+  if (abs(ModePulse - MID_PWM) < 100) //ModePulse ~= mid pwm
   {
     digitalWrite(LED_PIN, HIGH);
 
@@ -108,7 +117,7 @@ void Output()
         // Left  motor CCW
         ThrottleLeft  = MID_PWM - ThrottlePulse + 1*ThrottlePulse*Factor/100;
      }
-     else if(steer < 1500 - DEAD_BAND) // Turn right 
+     else if(SteeringPulse < 1500 - DEAD_BAND) // Turn right 
      {
         Factor = map(SteeringPulse, 1500 - DEAD_BAND, 1080, 0, 100);
         ThrottleLeft  = MID_PWM - ThrottlePulse - 1*ThrottlePulse*Factor/100;
@@ -124,19 +133,19 @@ void Output()
      digitalWrite(RIGHT_MOTOR_PIN, HIGH);
      delayMicroseconds(ThrottleRight);
      digitalWrite(RIGHT_MOTOR_PIN, LOW);
-     delayMicroseconds(20000 - throttleRight);
+     delayMicroseconds(20000 - ThrottleRight);
      digitalWrite(LEFT_MOTOR_PIN, HIGH);
      delayMicroseconds(ThrottleLeft);
      digitalWrite(LEFT_MOTOR_PIN, LOW);
-     delayMicroseconds(20000 - throttleLeft);
+     delayMicroseconds(20000 - ThrottleLeft);
   } 
   else //ModePulse is not at mid
   {
-    digitalWrite(leftMotorPin, LOW);
-    digitalWrite(rightMotorPin, LOW); 
-    digitalWrite(LED, HIGH); // Blinking LED = switch in off mode
+    digitalWrite(LEFT_MOTOR_PIN, LOW);
+    digitalWrite(RIGHT_MOTOR_PIN, LOW); 
+    digitalWrite(LED_PIN, HIGH); // Blinking LED = switch in off mode
     delay(100);
-    digitalWrite(LED, LOW);
+    digitalWrite(LED_PIN, LOW);
     delay(100);
   }
 }
@@ -146,6 +155,7 @@ void setup()
   pinMode(STEERING_PIN, INPUT);
   pinMode(THROTTLE_PIN, INPUT);
   pinMode(MODE_PIN, INPUT);
+  pinMode(RECORDING_PIN, INPUT); 
   pinMode(LED_PIN, OUTPUT);
   pinMode(LEFT_MOTOR_PIN, OUTPUT);
   pinMode(RIGHT_MOTOR_PIN, OUTPUT);
@@ -161,4 +171,3 @@ void loop()
   nh.spinOnce();
   delay(10);
 }
-
