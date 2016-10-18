@@ -13,7 +13,6 @@
 const int LED_PIN = 13;
 const int STEERING_PIN = 2; // 670 - 1240
 const int THROTTLE_PIN = 3; //570 - 1330
-//const int MODE_PIN = 4;
 const int LEFT_MOTOR_PIN = 9;
 const int RIGHT_MOTOR_PIN = 10;
 
@@ -28,7 +27,6 @@ const int ARMED = 500; // 462
 
 unsigned int SteeringPulse;
 unsigned int ThrottlePulse;
-//unsigned int ModePulse;
 unsigned int ThrottleRight;
 unsigned int ThrottleLeft;
 unsigned int Factor;
@@ -44,8 +42,6 @@ void FullCb(const std_msgs::Bool& fullMsg);
 void RecCb(const std_msgs::Bool& recMsg);
 
 ros::Publisher SteeringPub("steering_pwm", &PulseMsg);
-//ros::Publisher ThrottlePub("throttle_pwm", &PulseMsg);
-//ros::Publisher ModePub("mode_pwm", &PulseMsg);
 ros::Subscriber<std_msgs::Bool> FullSub("full_msg", &FullCb);
 ros::Subscriber<std_msgs::Bool> RecSub("rec_msg", &RecCb);
 
@@ -53,8 +49,6 @@ void StartRos()
 {
   nh.initNode();
   nh.advertise(SteeringPub);
-  //nh.advertise(ThrottlePub);
-  //nh.advertise(ModePub);
   nh.subscribe(FullSub);
 }
 
@@ -90,18 +84,6 @@ void PubPulse(const int &channel, const uint16_t &pulse)
   {
     SteeringPub.publish( &PulseMsg );
   }
-  /*
-  else if (_channel == THROTTLE_PIN)
-  {
-    ThrottlePub.publish( &PulseMsg);
-  }
-  */
-  /*
-  else if (_channel == MODE_PIN)
-  {
-    ModePub.publish( &PulseMsg);
-  }
-  */
 }
 
 void GetInput()
@@ -109,19 +91,13 @@ void GetInput()
   SteeringPulse = pulseIn(STEERING_PIN , HIGH, 20000) - RX_PWM_ERROR;
 
   ThrottlePulse = pulseIn(THROTTLE_PIN , HIGH, 20000) - RX_PWM_ERROR;
-  // PubPulse(THROTTLE_PIN, ThrottlePulse);
 
-  /*
-  ModePulse = pulseIn(MODE_PIN , HIGH, 20000) - RX_PWM_ERROR;
-  */
 }
 
 void Output()
 {
   /// Publish the ROS messages:
   PubPulse(STEERING_PIN, SteeringPulse);
-  // PubPulse(THROTTLE_PIN, ThrottlePulse);
-  // PubPulse(MODE_PIN, ModePulse);
 
   //activation controlled by mode channel
   if (ThrottlePulse > ARMED) // Check if armed/recording
@@ -194,7 +170,6 @@ void setup()
 {
   pinMode(STEERING_PIN, INPUT);
   pinMode(THROTTLE_PIN, INPUT);
-  //pinMode(MODE_PIN, INPUT);
   pinMode(LED_PIN, OUTPUT);
   pinMode(LEFT_MOTOR_PIN, OUTPUT);
   pinMode(RIGHT_MOTOR_PIN, OUTPUT);
