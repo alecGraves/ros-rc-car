@@ -29,6 +29,7 @@ unsigned int ThrottlePulse;
 unsigned int ThrottleRight;
 unsigned int ThrottleLeft;
 unsigned int Factor;
+boolean Armed;
 boolean Autonomous;
 boolean full = false;
 boolean rec = false;
