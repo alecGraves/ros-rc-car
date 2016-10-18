@@ -1,6 +1,9 @@
 /* 
- * rosserial::std_msgs::Float64 Test
- * Receives a Float64 input, subtracts 1.0, and publishes it
+ * Rosserial communication for rc car:
+ * Takes in pwm signals from a reciever and publishes 
+ *  the data to the onboard computer.
+ * Also calculates propper output to an h-bridge to 
+ *  control the rc car.
  */
 
 #include <ros.h>
@@ -31,63 +34,68 @@ unsigned int ThrottleLeft;
 unsigned int Factor;
 boolean Armed;
 boolean Autonomous;
-boolean full = false;
-boolean rec = false;
+boolean Full = false;
+boolean Rec = false;
 
 ros::NodeHandle nh;
 std_msgs::UInt16 PulseMsg;
 
+void FullCb(const std_msgs::Bool& fullMsg);
+void RecCb(const std_msgs::Bool& recMsg);
+
 ros::Publisher SteeringPub("steering_pwm", &PulseMsg);
-ros::Publisher ThrottlePub("throttle_pwm", &PulseMsg);
+//ros::Publisher ThrottlePub("throttle_pwm", &PulseMsg);
 //ros::Publisher ModePub("mode_pwm", &PulseMsg);
-ros::Subscriber<std_msgs::Bool> FullSub("full_msg", &fullCb);
-ros::Subscriber<std_msgs::Bool> RecSub("rec_msg", &recCb);
+ros::Subscriber<std_msgs::Bool> FullSub("full_msg", &FullCb);
+ros::Subscriber<std_msgs::Bool> RecSub("rec_msg", &RecCb);
 
 void StartRos()
 {
   nh.initNode();
   nh.advertise(SteeringPub);
-  nh.advertise(ThrottlePub);
+  //nh.advertise(ThrottlePub);
   //nh.advertise(ModePub);
-  nh.subscribe(FullSub)
+  nh.subscribe(FullSub);
 }
 
-void fullCb(const std_msgs::Bool& full_msg)
+void FullCb(const std_msgs::Bool& fullMsg)
 {
-  if(full_msg==true && full==false)
+  if(fullMsg.data == true && Full==false)
   {
-    full = true;
+    Full = true;
   }
-  else if(full_msg==false && full==true)
+  else if(fullMsg.data == false && Full==true)
   {
-    full = false;
-  }
-}
-
-void recCb(const std_msgs::Bool& rec_msg)
-{
-  if(rec_msg==true && rec==false)
-  {
-    rec = true;
-  }
-  else if(rec_msg==false && rec==true)
-  {
-    rec = false;
+    Full = false;
   }
 }
 
-void PubPulse(const int &_channel, const uint16_t &_pulse)
+void RecCb(const std_msgs::Bool& recMsg)
 {
-  PulseMsg.data = _pulse;
+  if(recMsg.data == true && Rec==false)
+  {
+    Rec = true;
+  }
+  else if(recMsg.data == false && Rec==true)
+  {
+    Rec = false;
+  }
+}
+
+void PubPulse(const int &channel, const uint16_t &pulse)
+{
+  PulseMsg.data = pulse;
   
-  if (_channel == STEERING_PIN)
+  if (channel == STEERING_PIN)
   {
     SteeringPub.publish( &PulseMsg );
   }
+  /*
   else if (_channel == THROTTLE_PIN)
   {
     ThrottlePub.publish( &PulseMsg);
   }
+  */
   /*
   else if (_channel == MODE_PIN)
   {
@@ -99,29 +107,35 @@ void PubPulse(const int &_channel, const uint16_t &_pulse)
 void GetInput()
 {
   SteeringPulse = pulseIn(STEERING_PIN , HIGH, 20000) - RX_PWM_ERROR;
-  PubPulse(STEERING_PIN, SteeringPulse);
-  
+
   ThrottlePulse = pulseIn(THROTTLE_PIN , HIGH, 20000) - RX_PWM_ERROR;
-  PubPulse(THROTTLE_PIN, ThrottlePulse);
-  
+  // PubPulse(THROTTLE_PIN, ThrottlePulse);
+
   /*
   ModePulse = pulseIn(MODE_PIN , HIGH, 20000) - RX_PWM_ERROR;
-  PubPulse(MODE_PIN, ModePulse);
   */
 }
 
 void Output()
 {
+  /// Publish the ROS messages:
+  PubPulse(STEERING_PIN, SteeringPulse);
+  // PubPulse(THROTTLE_PIN, ThrottlePulse);
+  // PubPulse(MODE_PIN, ModePulse);
+
   //activation controlled by mode channel
   if (ThrottlePulse > ARMED) // Check if armed/recording
   {
-    if(!full)
+    if(!Full)
     {
-      if(rec)
+      if(Rec)
       {
         digitalWrite(LED_PIN, HIGH); // turn on light
       }
       else
+      {
+        digitalWrite(LED_PIN, LOW);
+      }
     }
 
     //throttle
@@ -180,7 +194,7 @@ void setup()
 {
   pinMode(STEERING_PIN, INPUT);
   pinMode(THROTTLE_PIN, INPUT);
-  pinMode(MODE_PIN, INPUT);
+  //pinMode(MODE_PIN, INPUT);
   pinMode(LED_PIN, OUTPUT);
   pinMode(LEFT_MOTOR_PIN, OUTPUT);
   pinMode(RIGHT_MOTOR_PIN, OUTPUT);
