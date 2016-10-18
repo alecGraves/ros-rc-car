@@ -21,10 +21,6 @@ Then install ros libraries:
     cd ~/sketchbook/libraries
     rosrun rosserial_arduino make_libraries.py .
 
-Then configure to use the correct usb port:
-
-    perl -pi -e 's/COM1/ttyACM0/g' ~/.arduino/preferences.txt
-
 ### 3. Flash the image to the arduino
 
 Connect Arduino
@@ -37,7 +33,7 @@ Open IDE:
 
     arduino
 
-Then open the image (arduino_sketch_float32_working.ino) in the IDE and flash it to the arduino.
+Then open an image image in the IDE and flash it to the arduino.
 
 ### 4. Launch serial communication ros node
 Run roscore:
@@ -47,7 +43,4 @@ Run roscore:
 Run rosserial to recieve data from the arduino:
 
     rosrun rosserial_python serial_node.py /dev/ttyACM0
-    
-You may need to adjust the location of the arduino.
 
-    ls /dev/tty*
