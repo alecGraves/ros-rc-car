@@ -2,3 +2,6 @@
 	path = rosserial
 	url = https://github.com/ros-drivers/rosserial.git
 	branch = jade-devel
+[submodule "rosshell"]
+	path = rosshell
+	url = https://gitlab.com/OvGU-ESS/rosshell.git
