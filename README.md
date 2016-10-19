@@ -1,5 +1,9 @@
 # rx-arduino-ros
-This repository contians necessary instructions and code to interface a standard reciever with an arduino and with ros.
+This repository contians necessary instructions and code to make an RC car using 
+a computer running ros and an arduino. There is also a ros package that automatically
+starts recording images when the car moves.
+
+The arduino is connected to an h-bridge for motor control. 
 
 ### 1. Compile source:
 clone the repository into catkin_ws/src

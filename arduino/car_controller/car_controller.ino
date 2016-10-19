@@ -23,67 +23,29 @@ const int DEAD_BAND = 100;
 const int STATIC_OFFSET = 10;
 const int RX_PWM_ERROR = 400;
 const int SPEED_LIMIT = 100;
-const int ARMED = 500; // 462
+const int ARMED = 1000; // 462
 
 unsigned int SteeringPulse;
 unsigned int ThrottlePulse;
 unsigned int ThrottleRight;
 unsigned int ThrottleLeft;
 unsigned int Factor;
-boolean Armed;
 boolean Autonomous;
 boolean Full = false;
 boolean Rec = false;
 
 ros::NodeHandle nh;
 std_msgs::UInt16 PulseMsg;
+std_msgs::Bool ArmedMsg;
 
-void FullCb(const std_msgs::Bool& fullMsg);
-void RecCb(const std_msgs::Bool& recMsg);
-
+ros::Publisher ArmedPub("armed", &ArmedMsg);
 ros::Publisher SteeringPub("steering_pwm", &PulseMsg);
-ros::Subscriber<std_msgs::Bool> FullSub("full_msg", &FullCb);
-ros::Subscriber<std_msgs::Bool> RecSub("rec_msg", &RecCb);
 
 void StartRos()
 {
   nh.initNode();
+  nh.advertise(ArmedPub);
   nh.advertise(SteeringPub);
-  nh.subscribe(FullSub);
-}
-
-void FullCb(const std_msgs::Bool& fullMsg)
-{
-  if(fullMsg.data == true && Full==false)
-  {
-    Full = true;
-  }
-  else if(fullMsg.data == false && Full==true)
-  {
-    Full = false;
-  }
-}
-
-void RecCb(const std_msgs::Bool& recMsg)
-{
-  if(recMsg.data == true && Rec==false)
-  {
-    Rec = true;
-  }
-  else if(recMsg.data == false && Rec==true)
-  {
-    Rec = false;
-  }
-}
-
-void PubPulse(const int &channel, const uint16_t &pulse)
-{
-  PulseMsg.data = pulse;
-  
-  if (channel == STEERING_PIN)
-  {
-    SteeringPub.publish( &PulseMsg );
-  }
 }
 
 void GetInput()
@@ -92,76 +54,72 @@ void GetInput()
 
   ThrottlePulse = pulseIn(THROTTLE_PIN , HIGH, 20000) - RX_PWM_ERROR;
 
+  if (ThrottlePulse > 1000)
+  {
+    ArmedMsg.data = true;
+  }
+  else
+  {
+    ArmedMsg.data = false;
+  }
 }
 
 void Output()
 {
   /// Publish the ROS messages:
-  PubPulse(STEERING_PIN, SteeringPulse);
-
-  //activation controlled by mode channel
-  if (ThrottlePulse > ARMED) // Check if armed/recording
+  SteeringPub.publish( &PulseMsg );
+  ArmedPub.publish( &ArmedMsg );
+  if (ArmedMsg.data)
   {
-    if(!Full)
-    {
-      if(Rec)
-      {
-        digitalWrite(LED_PIN, HIGH); // turn on light
-      }
-      else
-      {
-        digitalWrite(LED_PIN, LOW);
-      }
-    }
-
     //throttle
-     if(ThrottlePulse > 1500 + DEAD_BAND) 
-     {
+    if(ThrottlePulse > 1500 + DEAD_BAND) 
+    {
         ThrottlePulse = map(ThrottlePulse, 1500 + DEAD_BAND, 1880, 0, SPEED_LIMIT);
-     }
-     else if(ThrottlePulse < 1480-DEAD_BAND) 
-     {
+    }
+    else if(ThrottlePulse < 1480-DEAD_BAND) 
+    {
         ThrottlePulse = map(ThrottlePulse, 1500 - DEAD_BAND, 1080, 0, -1*SPEED_LIMIT);
-     } 
-     else 
-     {
-       ThrottlePulse = 0;
-     }
-     
-     //steer
-     if(SteeringPulse > 1500 + DEAD_BAND) // Turn left
-     {
-        Factor = map(SteeringPulse, 1500 + DEAD_BAND, 1880, 0, 100);
-        // Right motor  CW (tune with 80)
-        ThrottleRight = MID_PWM + ThrottlePulse + 1*ThrottlePulse*Factor/100;
-        // Left  motor CCW
-        ThrottleLeft  = MID_PWM - ThrottlePulse + 1*ThrottlePulse*Factor/100;
-     }
-     else if(SteeringPulse < 1500 - DEAD_BAND) // Turn right 
-     {
+    } 
+    else 
+    {
+        ThrottlePulse = 0;
+    }
+      
+    //steer
+    if(SteeringPulse > 1500 + DEAD_BAND) // Turn left
+    {
+      Factor = map(SteeringPulse, 1500 + DEAD_BAND, 1880, 0, 100);
+      // Right motor  CW (tune with 80)
+      ThrottleRight = MID_PWM + ThrottlePulse + 1*ThrottlePulse*Factor/100;
+      // Left  motor CCW
+      ThrottleLeft  = MID_PWM - ThrottlePulse + 1*ThrottlePulse*Factor/100;
+      }
+      else if(SteeringPulse < 1500 - DEAD_BAND) // Turn right 
+      {
         Factor = map(SteeringPulse, 1500 - DEAD_BAND, 1080, 0, 100);
         ThrottleLeft  = MID_PWM - ThrottlePulse - 1*ThrottlePulse*Factor/100;
         ThrottleRight = MID_PWM + ThrottlePulse - 1*ThrottlePulse*Factor/100;
-     }
-     else
-     {
-       ThrottleLeft  = MID_PWM - ThrottlePulse;
-       ThrottleRight = MID_PWM + ThrottlePulse + STATIC_OFFSET;
-     }
-     
-     //control motors
-     digitalWrite(RIGHT_MOTOR_PIN, HIGH);
-     delayMicroseconds(ThrottleRight);
-     digitalWrite(RIGHT_MOTOR_PIN, LOW);
-     delayMicroseconds(20000 - ThrottleRight);
-     digitalWrite(LEFT_MOTOR_PIN, HIGH);
-     delayMicroseconds(ThrottleLeft);
-     digitalWrite(LEFT_MOTOR_PIN, LOW);
-     delayMicroseconds(20000 - ThrottleLeft);
+      }
+      else
+      {
+        ThrottleLeft  = MID_PWM - ThrottlePulse;
+        ThrottleRight = MID_PWM + ThrottlePulse + STATIC_OFFSET;
+      }
+      
+      //control motors
+      digitalWrite(RIGHT_MOTOR_PIN, HIGH);
+      delayMicroseconds(ThrottleRight);
+      digitalWrite(RIGHT_MOTOR_PIN, LOW);
+      delayMicroseconds(20000 - ThrottleRight);
+      digitalWrite(LEFT_MOTOR_PIN, HIGH);
+      delayMicroseconds(ThrottleLeft);
+      digitalWrite(LEFT_MOTOR_PIN, LOW);
+      delayMicroseconds(20000 - ThrottleLeft);
   } 
   else //ModePulse is not at mid
   {
     digitalWrite(LEFT_MOTOR_PIN, LOW);
+    delay(100);
     digitalWrite(RIGHT_MOTOR_PIN, LOW); 
   }
 }
@@ -183,5 +141,5 @@ void loop()
   Output();
   
   nh.spinOnce();
-  delay(10);
+  //delay(10);
 }
