@@ -37,8 +37,6 @@ unsigned int ThrottleLeft;
 unsigned int Factor;
 boolean Forward;
 boolean Autonomous;
-boolean Full = false;
-boolean Rec = false;
 
 ros::NodeHandle nh;
 std_msgs::UInt16 PulseMsg;
@@ -73,7 +71,7 @@ void GetInput()
 void setDirection(bool forward) // 1 for forward, 0 for reverse
 {
   ///set direction using logic pins of hbridge
-  if (forward == Forward)
+  if (forward == Forward) //requested and current state are the same
   {
     // do nothing
   }
@@ -105,7 +103,7 @@ void Output()
   {
     //throttle magnitide
     //map(in, in_min, in_max, out_min, out_max)
-    ThrottlePulse = map(abs(1500-ThrottlePulse), 0, 500, 0, 255);
+    ThrottlePulse = map( abs(1500-ThrottlePulse), 0, 500, 0, 255);
 
     //throttle direction
     if(ThrottlePulse > 1500) //Deadband considered in ArmedMsg.data
