@@ -36,7 +36,9 @@ unsigned int ThrottleRight;
 unsigned int ThrottleLeft;
 unsigned int Factor;
 boolean Forward;
+boolean DoDebug;
 boolean Autonomous;
+
 
 ros::NodeHandle nh;
 std_msgs::UInt16 PulseMsg;
@@ -44,12 +46,15 @@ std_msgs::Bool ArmedMsg;
 
 ros::Publisher ArmedPub("armed", &ArmedMsg);
 ros::Publisher SteeringPub("steering_pwm", &PulseMsg);
+ros::Publisher ThrottlePub("throttle_pwm", &PulseMsg);
+
 
 void StartRos()
 {
   nh.initNode();
   nh.advertise(ArmedPub);
   nh.advertise(SteeringPub);
+  nh.advertise(ThrottlePub);
 }
 
 void GetInput()
@@ -96,8 +101,15 @@ void setDirection(bool forward) // 1 for forward, 0 for reverse
 void Output()
 {
   /// Publish the ROS messages:
-  SteeringPub.publish( &PulseMsg );
-  ArmedPub.publish( &ArmedMsg );
+  PulseMsg.data = SteeringPulse;
+  SteeringPub.publish(&PulseMsg);
+  if (DoDebug)
+  {
+    PulseMsg.data = ThrottlePulse;
+    ThrottlePub.publish(&PulseMsg);
+  }
+  ArmedPub.publish(&ArmedMsg);
+  
 
   if (ArmedMsg.data) // ArmedMsg.data is assigned in GetInputs()
   {
