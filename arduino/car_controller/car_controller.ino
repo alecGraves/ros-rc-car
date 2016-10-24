@@ -9,7 +9,7 @@
 #include <ros.h>
 #include <std_msgs/UInt16.h>
 #include <std_msgs/Bool.h>
-#include <servo.h>
+#include <Servo.h>
 
 const int LED_PIN = 6;
 const int STEERING_PIN = 2; // 670 - 1240
@@ -35,7 +35,7 @@ unsigned int ThrottlePulse;
 unsigned int ThrottleRight;
 unsigned int ThrottleLeft;
 unsigned int Factor;
-bool Reverse;
+boolean Forward;
 boolean Autonomous;
 boolean Full = false;
 boolean Rec = false;
@@ -105,7 +105,7 @@ void Output()
   {
     //throttle magnitide
     //map(in, in_min, in_max, out_min, out_max)
-    ThrottlePulse = map(abs(1500-ThrottlePulse, 0, 500, 0, 255);
+    ThrottlePulse = map(abs(1500-ThrottlePulse), 0, 500, 0, 255);
 
     //throttle direction
     if(ThrottlePulse > 1500) //Deadband considered in ArmedMsg.data
