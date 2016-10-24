@@ -155,6 +155,8 @@ void setup()
   
   Servo1.attach(SERVO_PIN);
 
+  DoDebug = true;
+
   StartRos();
 }
 
