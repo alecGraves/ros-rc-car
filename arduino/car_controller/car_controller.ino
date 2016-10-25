@@ -24,7 +24,7 @@ const int MID_PWM = 1500;
 const int LOW_PWM = 1000;
 const int DEAD_BAND = 100;
 const int STATIC_OFFSET = 10;
-const int RX_PWM_ERROR = -150;
+const int RX_PWM_ERROR = -100;
 const int SPEED_LIMIT = 100;
 
 
@@ -82,28 +82,37 @@ void GetInput()
   ModePulse = pulseIn(MODE_PIN , HIGH, 20000) - RX_PWM_ERROR;
 }
 
-void SetDirection(boolean forward) // 1 for forward, 0 for reverse
+void SetDirection(boolean forward, bool init = false) // 1 for forward, 0 for reverse
 {
-  ///set direction using logic pins of hbridge
-  if (forward == Forward) //requested and current state are the same
+  if (init)//initialize state
   {
-    // do nothing
+    digitalWrite(REVERSE_MOTOR_PIN, LOW);
+    digitalWrite(FORWARD_MOTOR_PIN, HIGH);
+    Forward = true;
   }
   else
   {
-    // change directions
-    if (Forward == true)
+    ///set direction using logic pins of hbridge
+    if (forward == Forward) //requested and current state are the same
     {
-      digitalWrite(FORWARD_MOTOR_PIN, LOW);
-      digitalWrite(REVERSE_MOTOR_PIN, HIGH);
+      // do nothing
     }
     else
     {
-      digitalWrite(REVERSE_MOTOR_PIN, LOW);
-      digitalWrite(FORWARD_MOTOR_PIN, HIGH);
+      // change directions
+      if (Forward == true)
+      {
+        digitalWrite(FORWARD_MOTOR_PIN, LOW);
+        digitalWrite(REVERSE_MOTOR_PIN, HIGH);
+      }
+      else
+      {
+        digitalWrite(REVERSE_MOTOR_PIN, LOW);
+        digitalWrite(FORWARD_MOTOR_PIN, HIGH);
+      }
+      //store current state
+      Forward = forward;
     }
-    //store current state
-    Forward = forward;
   }
 }
 
@@ -146,19 +155,16 @@ void Output()
     ThrottlePub.publish(&PulseMsg);
     PulseMsg.data = ModePulse;
     ModePub.publish(&PulseMsg);
-  }  
+  }
 
   if (CurrentMode == armed  || CurrentMode == recording)
   {
     digitalWrite(LED_PIN, HIGH); //armed
 
-    if (abs(MID_PWM-ThrottlePulse) > DEAD_BAND) //not at mid
+    if (abs(ThrottlePulse-MID_PWM) > DEAD_BAND) //not at mid
     {
-      //throttle magnitide
-      //map(in, in_min, in_max, out_min, out_max)
-      ThrottlePulse = map( abs(MID_PWM-ThrottlePulse), 0, 500, 0, 255);
       //throttle direction
-      if(ThrottlePulse > MID_PWM)
+      if(ThrottlePulse > MID_PWM-100)
       {
         SetDirection(1); //1 for forward
       }
@@ -166,16 +172,19 @@ void Output()
       {
         SetDirection(0); //0 for reverse
       }
+      //throttle magnitide
+      //map(in, in_min, in_max, out_min, out_max)
+      ThrottlePulse = map( abs(MID_PWM-ThrottlePulse), 0, 500, 0, 255);
+      //control motors
+      analogWrite(MOTOR_PIN, ThrottlePulse);
     }
     else //throttle at mid
     {
-      //throttle is low
-      ThrottlePulse = LOW_PWM;
+      //write LOW pin
+      digitalWrite(MOTOR_PIN, LOW);
     }
 
-    //control motors
-    analogWrite(MOTOR_PIN, ThrottlePulse);
-
+    
     
     //steering servo direction
     SteeringPulse = map(SteeringPulse, LOW_PWM, HIGH_PWM, 30, 150);
@@ -208,7 +217,7 @@ void setup()
   
   Servo1.attach(SERVO_PIN);
   
-  Forward = true;
+  SetDirection(1, true);//init direction
   
   StartRos();
 }
