@@ -24,10 +24,12 @@ const int MID_PWM = 1500;
 const int LOW_PWM = 1000;
 const int DEAD_BAND = 100;
 const int STATIC_OFFSET = 10;
-const int RX_PWM_ERROR = 150;
+const int RX_PWM_ERROR = -150;
 const int SPEED_LIMIT = 100;
 const int ARMED = 1000; // 462
 
+const boolean DoDebug = true;
+const boolean ReverseThrottle = true;
 Servo Servo1;
 
 unsigned int SteeringPulse;
@@ -36,7 +38,7 @@ unsigned int ThrottleRight;
 unsigned int ThrottleLeft;
 unsigned int Factor;
 boolean Forward;
-boolean DoDebug;
+
 boolean Autonomous;
 
 
@@ -61,15 +63,13 @@ void GetInput()
 {
   SteeringPulse = pulseIn(STEERING_PIN , HIGH, 20000) - RX_PWM_ERROR;
 
-  ThrottlePulse = pulseIn(THROTTLE_PIN , HIGH, 20000) - RX_PWM_ERROR;
-
-  if (abs(ThrottlePulse - 1500) > DEAD_BAND)
+  if (ReverseThrottle)
   {
-    ArmedMsg.data = true;
+    ThrottlePulse = 3000-(pulseIn(THROTTLE_PIN , HIGH, 20000) - RX_PWM_ERROR);
   }
-  else 
+  else
   {
-    ArmedMsg.data = false;
+    ThrottlePulse = pulseIn(THROTTLE_PIN , HIGH, 20000) - RX_PWM_ERROR;
   }
 }
 
@@ -100,6 +100,16 @@ void setDirection(bool forward) // 1 for forward, 0 for reverse
 
 void Output()
 {
+  // Armed?
+  if (abs(ThrottlePulse - 1500) > DEAD_BAND)
+  {
+    ArmedMsg.data = true;
+  }
+  else 
+  {
+    ArmedMsg.data = false;
+  }
+
   /// Publish the ROS messages:
   PulseMsg.data = SteeringPulse;
   SteeringPub.publish(&PulseMsg);
@@ -111,8 +121,9 @@ void Output()
   ArmedPub.publish(&ArmedMsg);
   
 
-  if (ArmedMsg.data) // ArmedMsg.data is assigned in GetInputs()
+  if (ArmedMsg.data) // ArmedMsg.data is assigned above
   {
+    digitalWrite(LED_PIN, HIGH);
     //throttle magnitide
     //map(in, in_min, in_max, out_min, out_max)
     ThrottlePulse = map( abs(1500-ThrottlePulse), 0, 500, 0, 255);
@@ -138,8 +149,13 @@ void Output()
   } 
   else //ModePulse is not at mid
   {
+    digitalWrite(LED_PIN, LOW);
     digitalWrite(MOTOR_PIN, LOW);
     delay(100);
+    digitalWrite(LED_PIN, HIGH);
+    delay(100);
+    digitalWrite(LED_PIN, LOW);
+
   }
 }
 
@@ -154,8 +170,6 @@ void setup()
   pinMode(SERVO_PIN, OUTPUT);
   
   Servo1.attach(SERVO_PIN);
-
-  DoDebug = true;
 
   StartRos();
 }
