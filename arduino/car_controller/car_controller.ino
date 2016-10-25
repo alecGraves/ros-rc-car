@@ -39,7 +39,7 @@ unsigned int ThrottleRight;
 unsigned int ThrottleLeft;
 boolean Forward;
 
-enum Mode { disarmed, armed, autonomous };
+enum Mode { disarmed, armed, recording, autonomous };
 
 Mode CurrentMode;
 
@@ -82,7 +82,7 @@ void GetInput()
   ModePulse = pulseIn(MODE_PIN , HIGH, 20000) - RX_PWM_ERROR;
 }
 
-void SetDirection(bool forward) // 1 for forward, 0 for reverse
+void SetDirection(boolean forward) // 1 for forward, 0 for reverse
 {
   ///set direction using logic pins of hbridge
   if (forward == Forward) //requested and current state are the same
@@ -110,30 +110,36 @@ void SetDirection(bool forward) // 1 for forward, 0 for reverse
 void Output()
 {
   // moving?
-  if (abs(ThrottlePulse - 1500) > DEAD_BAND)
-  {
-    MovingMsg.data = true;
-  }
-  else 
-  {
-    MovingMsg.data = false;
-  }
 
   //mode?
   if (ModePulse > 1600)
   {
     CurrentMode = disarmed;
   }
-  else
+  else if (ModePulse > 1400)
   {
     CurrentMode = armed;
+  }
+  else
+  {
+    CurrentMode = recording;
+  }
+
+  // moving?
+  if ( (ThrottlePulse - MID_PWM) > DEAD_BAND && CurrentMode == recording)
+  {
+    MovingMsg.data = true; //moving forward
+  }
+  else 
+  {
+    MovingMsg.data = false; //not moving forward
   }
 
   /// Publish the ROS messages:
   PulseMsg.data = SteeringPulse;
   SteeringPub.publish(&PulseMsg);
   MovingPub.publish(&MovingMsg);
-  
+
   if (DoDebug)
   {
     PulseMsg.data = ThrottlePulse;
@@ -142,36 +148,40 @@ void Output()
     ModePub.publish(&PulseMsg);
   }  
 
-  if (CurrentMode == armed)
+  if (CurrentMode == armed  || CurrentMode == recording)
   {
-    digitalWrite(LED_PIN, HIGH);
+    digitalWrite(LED_PIN, HIGH); //armed
 
-    if (MovingMsg.data)
+    if (abs(MID_PWM-ThrottlePulse) > DEAD_BAND) //not at mid
     {
       //throttle magnitide
       //map(in, in_min, in_max, out_min, out_max)
-      ThrottlePulse = map( abs(1500-ThrottlePulse), 0, 500, 0, 255);
-
+      ThrottlePulse = map( abs(MID_PWM-ThrottlePulse), 0, 500, 0, 255);
       //throttle direction
-      if(ThrottlePulse > 1500) //Deadband considered in MovingMsg.data
+      if(ThrottlePulse > MID_PWM)
       {
-        SetDirection(1); // 1 for forward
+        SetDirection(1); //1 for forward
       }
       else 
       {
-        SetDirection(0); // 0 for reverse
+        SetDirection(0); //0 for reverse
       }
-
-      //control motors
-      analogWrite(MOTOR_PIN, ThrottlePulse);
     }
+    else //throttle at mid
+    {
+      //throttle is low
+      ThrottlePulse = LOW_PWM;
+    }
+
+    //control motors
+    analogWrite(MOTOR_PIN, ThrottlePulse);
+
     
     //steering servo direction
-    SteeringPulse = map(SteeringPulse, 1000, 2000, 30, 150);
+    SteeringPulse = map(SteeringPulse, LOW_PWM, HIGH_PWM, 30, 150);
 
     //control servo
     Servo1.write(SteeringPulse);
-
   } 
   else //disarmed
   {
