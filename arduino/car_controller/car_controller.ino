@@ -79,10 +79,7 @@ void GetInput()
     ThrottlePulse = pulseIn(THROTTLE_PIN , HIGH, 20000) - RX_PWM_ERROR;
   }
 
-  if (DoDebug)
-  {
-    ModePulse = pulseIn(MODE_PIN , HIGH, 20000) - RX_PWM_ERROR;
-  }
+  ModePulse = pulseIn(MODE_PIN , HIGH, 20000) - RX_PWM_ERROR;
 }
 
 void SetDirection(bool forward) // 1 for forward, 0 for reverse
