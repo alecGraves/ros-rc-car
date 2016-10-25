@@ -17,8 +17,8 @@ const int THROTTLE_PIN = 3; //570 - 1330
 const int FORWARD_MOTOR_PIN = 9;
 const int REVERSE_MOTOR_PIN = 10;
 const int MOTOR_PIN = 11;
-const int SERVO_PIN = 15;
-const int MODE_PIN = 10;
+const int SERVO_PIN = A0;
+const int MODE_PIN = 5;
 const int HIGH_PWM = 2000;
 const int MID_PWM = 1500;
 const int LOW_PWM = 1000;
@@ -51,6 +51,7 @@ std_msgs::Bool MovingMsg;
 ros::Publisher MovingPub("moving", &MovingMsg);
 ros::Publisher SteeringPub("steering_pwm", &PulseMsg);
 ros::Publisher ThrottlePub("throttle_pwm", &PulseMsg);
+ros::Publisher ModePub("mode_pwm", &PulseMsg);
 
 
 void StartRos()
@@ -58,7 +59,11 @@ void StartRos()
   nh.initNode();
   nh.advertise(MovingPub);
   nh.advertise(SteeringPub);
-  nh.advertise(ThrottlePub);
+  if (DoDebug)
+  {
+    nh.advertise(ThrottlePub);
+    nh.advertise(ModePub);
+  }
 }
 
 void GetInput()
@@ -74,10 +79,13 @@ void GetInput()
     ThrottlePulse = pulseIn(THROTTLE_PIN , HIGH, 20000) - RX_PWM_ERROR;
   }
 
-  ModePulse = pulseIn(MODE_PIN , HIGH, 20000) - RX_PWM_ERROR;
+  if (DoDebug)
+  {
+    ModePulse = pulseIn(MODE_PIN , HIGH, 20000) - RX_PWM_ERROR;
+  }
 }
 
-void setDirection(bool forward) // 1 for forward, 0 for reverse
+void SetDirection(bool forward) // 1 for forward, 0 for reverse
 {
   ///set direction using logic pins of hbridge
   if (forward == Forward) //requested and current state are the same
@@ -115,7 +123,7 @@ void Output()
   }
 
   //mode?
-  if (ModePulse < 1400)
+  if (ModePulse > 1600)
   {
     CurrentMode = disarmed;
   }
@@ -128,10 +136,13 @@ void Output()
   PulseMsg.data = SteeringPulse;
   SteeringPub.publish(&PulseMsg);
   MovingPub.publish(&MovingMsg);
+  
   if (DoDebug)
   {
     PulseMsg.data = ThrottlePulse;
     ThrottlePub.publish(&PulseMsg);
+    PulseMsg.data = ModePulse;
+    ModePub.publish(&PulseMsg);
   }  
 
   if (CurrentMode == armed)
@@ -147,11 +158,11 @@ void Output()
       //throttle direction
       if(ThrottlePulse > 1500) //Deadband considered in MovingMsg.data
       {
-        setDirection(1); // 1 for forward
+        SetDirection(1); // 1 for forward
       }
       else 
       {
-        setDirection(0); // 0 for reverse
+        SetDirection(0); // 0 for reverse
       }
 
       //control motors
