@@ -12,8 +12,8 @@
 #include <Servo.h>
 
 const int LED_PIN = 6;
-const int STEERING_PIN = 2; // 670 - 1240
-const int THROTTLE_PIN = 3; //570 - 1330
+const int STEERING_PIN = 2;
+const int THROTTLE_PIN = 3;
 const int FORWARD_MOTOR_PIN = 9;
 const int REVERSE_MOTOR_PIN = 10;
 const int MOTOR_PIN = 11;
@@ -27,6 +27,7 @@ const int STATIC_OFFSET = 10;
 const int RX_PWM_ERROR = -150;
 const int SPEED_LIMIT = 100;
 
+
 const boolean DoDebug = true;
 const boolean ReverseThrottle = true;
 Servo Servo1;
@@ -36,7 +37,6 @@ unsigned int ThrottlePulse;
 unsigned int ModePulse;
 unsigned int ThrottleRight;
 unsigned int ThrottleLeft;
-unsigned int Factor;
 boolean Forward;
 
 enum Mode { disarmed, armed, autonomous };
@@ -197,7 +197,9 @@ void setup()
   pinMode(SERVO_PIN, OUTPUT);
   
   Servo1.attach(SERVO_PIN);
-
+  
+  Forward = true;
+  
   StartRos();
 }
 
