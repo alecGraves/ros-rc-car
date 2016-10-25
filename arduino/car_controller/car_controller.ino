@@ -24,7 +24,7 @@ const int MID_PWM = 1500;
 const int LOW_PWM = 1000;
 const int DEAD_BAND = 100;
 const int STATIC_OFFSET = 10;
-const int RX_PWM_ERROR = 0;
+const int RX_PWM_ERROR = 150;
 const int SPEED_LIMIT = 100;
 const int ARMED = 1000; // 462
 
