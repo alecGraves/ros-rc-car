@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 	std::string bag_filename = std::to_string(ros::Time::now().toSec()) + ".bag";
 
 	ros::Subscriber steering_sub = nh.subscribe("steering_pwm", 1, steering_callback);
-	ros::Subscriber armed_sub = nh.subscribe("armed", 1, armed_callback);	
+	ros::Subscriber armed_sub = nh.subscribe("moving", 1, armed_callback);	
 	ros::Subscriber camera_sub = nh.subscribe("usb_cam/image_raw", 1, image_callback);
 
 	ros::Rate loop_rate(10);
