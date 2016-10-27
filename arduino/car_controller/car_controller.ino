@@ -46,9 +46,9 @@ Mode CurrentMode;
 
 ros::NodeHandle nh;
 std_msgs::UInt16 PulseMsg;
-std_msgs::Bool MovingMsg;
+std_msgs::Bool RecMsg;
 
-ros::Publisher MovingPub("moving", &MovingMsg);
+ros::Publisher RecPub("moving", &RecMsg);
 ros::Publisher SteeringPub("steering_pwm", &PulseMsg);
 ros::Publisher ThrottlePub("throttle_pwm", &PulseMsg);
 ros::Publisher ModePub("mode_pwm", &PulseMsg);
@@ -57,7 +57,7 @@ ros::Publisher ModePub("mode_pwm", &PulseMsg);
 void StartRos()
 {
   nh.initNode();
-  nh.advertise(MovingPub);
+  nh.advertise(RecPub);
   nh.advertise(SteeringPub);
   if (DoDebug)
   {
@@ -118,7 +118,7 @@ void SetDirection(boolean forward, bool init = false) // 1 for forward, 0 for re
 
 void Output()
 {
-  // moving?
+  // Rec?
 
   //mode?
   if (ModePulse > 1600)
@@ -134,20 +134,16 @@ void Output()
     CurrentMode = recording;
   }
 
-  // moving?
-  if ( (ThrottlePulse - MID_PWM) > DEAD_BAND && CurrentMode == recording)
+  // Rec?
+  if (CurrentMode == recording)
   {
-    MovingMsg.data = true; //moving forward
-  }
-  else 
-  {
-    MovingMsg.data = false; //not moving forward
+    RecMsg.data = true; //Rec forward
   }
 
   /// Publish the ROS messages:
   PulseMsg.data = SteeringPulse;
   SteeringPub.publish(&PulseMsg);
-  MovingPub.publish(&MovingMsg);
+  RecPub.publish(&RecMsg);
 
   if (DoDebug)
   {
