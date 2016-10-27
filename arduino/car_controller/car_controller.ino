@@ -118,26 +118,21 @@ void SetDirection(boolean forward, bool init = false) // 1 for forward, 0 for re
 
 void Output()
 {
-  // Rec?
-
   //mode?
   if (ModePulse > 1600)
   {
     CurrentMode = disarmed;
+    RecMsg.data = false;
   }
   else if (ModePulse > 1400)
   {
     CurrentMode = armed;
+    RecMsg.data = false;
   }
-  else
+  else // Rec
   {
     CurrentMode = recording;
-  }
-
-  // Rec?
-  if (CurrentMode == recording)
-  {
-    RecMsg.data = true; //Rec forward
+    RecMsg.data = true; //Rec
   }
 
   /// Publish the ROS messages:
