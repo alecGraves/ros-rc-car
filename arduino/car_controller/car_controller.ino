@@ -164,19 +164,19 @@ void Output()
         SetDirection(0); //0 for reverse
       }
       //throttle magnitide
+      /*if (ThrottlePulse > MID_PWM + 200)
+      {
+        ThrottlePulse = MID_PWM + 200;
+      }
+      else if (ThrottlePulse < MID_PWM - 200)
+      {
+        ThrottlePulse = MID_PWM - 200;
+      }*/
       //map(in, in_min, in_max, out_min, out_max)
-      if (ThrottlePulse > MID_PWM + 300)
-      {
-        ThrottlePulse = MID_PWM + 300;
-      }
-      else if (ThrottlePulse < MID_PWM - 300)
-      {
-        ThrottlePulse = MID_PWM - 300;
-      }
-      ThrottlePulse = map(abs(MID_PWM-ThrottlePulse), 0, 300, 0, 255);
+      //ThrottlePulse = map(abs(MID_PWM-ThrottlePulse), 0, 200, 0, 255);
       //control motors
       //analogWrite(MOTOR_PIN, ThrottlePulse);
-      analogWrite(MOTOR_PIN, 255);
+      digitalWrite(MOTOR_PIN, HIGH);
 
     }
     else //throttle at mid
