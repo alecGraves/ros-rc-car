@@ -155,7 +155,7 @@ void Output()
     if (abs(ThrottlePulse-MID_PWM) > DEAD_BAND) //not at mid
     {
       //throttle direction
-      if(ThrottlePulse > MID_PWM-100)
+      if(ThrottlePulse > MID_PWM)
       {
         SetDirection(1); //1 for forward
       }
@@ -165,9 +165,19 @@ void Output()
       }
       //throttle magnitide
       //map(in, in_min, in_max, out_min, out_max)
-      ThrottlePulse = map( abs(MID_PWM-ThrottlePulse), 0, 500, 0, 255);
+      if (ThrottlePulse > MID_PWM + 300)
+      {
+        ThrottlePulse = MID_PWM + 300;
+      }
+      else if (ThrottlePulse < MID_PWM - 300)
+      {
+        ThrottlePulse = MID_PWM - 300;
+      }
+      ThrottlePulse = map(abs(MID_PWM-ThrottlePulse), 0, 300, 0, 255);
       //control motors
-      analogWrite(MOTOR_PIN, ThrottlePulse);
+      //analogWrite(MOTOR_PIN, ThrottlePulse);
+      analogWrite(MOTOR_PIN, 255);
+
     }
     else //throttle at mid
     {
