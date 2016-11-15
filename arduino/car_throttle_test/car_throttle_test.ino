@@ -137,15 +137,15 @@ void Output()
 
   /// Publish the ROS messages:
   PulseMsg.data = SteeringPulse;
-  SteeringPub.publish(&PulseMsg);
-  RecPub.publish(&RecMsg);
+  //SteeringPub.publish(&PulseMsg);
+  //RecPub.publish(&RecMsg);
 
   if (DoDebug)
   {
     PulseMsg.data = ThrottlePulse;
-    ThrottlePub.publish(&PulseMsg);
+    //ThrottlePub.publish(&PulseMsg);
     PulseMsg.data = ModePulse;
-    ModePub.publish(&PulseMsg);
+    //ModePub.publish(&PulseMsg);
   }
 
   if (CurrentMode == armed  || CurrentMode == recording)
@@ -239,6 +239,6 @@ void loop()
   GetInput();
   Output();
   
-  nh.spinOnce();
+  //nh.spinOnce();
   //delay(10);
 }
