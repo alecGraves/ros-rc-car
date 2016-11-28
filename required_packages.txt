@@ -1,0 +1,2 @@
+ros-kinetic-camera-info-manager
+
