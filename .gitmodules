@@ -1,10 +1,9 @@
-[submodule "rosserial"]
-	path = rosserial
-	url = https://github.com/ros-drivers/rosserial.git
-	branch = jade-devel
 [submodule "rosshell"]
 	path = rosshell
 	url = https://gitlab.com/OvGU-ESS/rosshell.git
 [submodule "usb_cam"]
 	path = usb_cam
 	url = https://github.com/bosch-ros-pkg/usb_cam.git
+[submodule "ros-serial"]
+	path = rosserial
+	url = https://github.com/ros-drivers/rosserial.git
