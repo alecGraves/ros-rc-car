@@ -6,8 +6,10 @@ add_definitions(-std=c++11)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+find_package(OpenCV 3 REQUIRED)
 find_package(catkin REQUIRED COMPONENTS roslaunch)
 find_package(catkin REQUIRED COMPONENTS
+  cv_bridge
   image_transport
   roscpp
   std_msgs
@@ -124,6 +126,7 @@ catkin_package(
 include_directories(
 	include
 	${catkin_INCLUDE_DIRS}
+	${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -147,6 +150,7 @@ add_executable(record_video src/record_video.cpp)
 ## Specify libraries to link a library or executable target against
 target_link_libraries(record_video
 	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES}
 )
 
 #############
