@@ -31,10 +31,12 @@ void downscale_image(const sensor_msgs::Image::ConstPtr& original_image)
 		ROS_ERROR("color_tracker.cpp::cv_bridge exception: %s", e.what());
 		return;
 	}
-	sensor_msgs::ImagePtr thresh;
-	//downscale resolution by 1/5:
+	//downscale resolution by 1/10:
 	cv::resize(cv_ptr->image, cv_ptr->image, cv::Size(), 0.1, 0.1);
-	cv::flip(cv_ptr->image, cv_ptr->image, -1);
+	//flip the image (the camera was mounted upside-down):
+	cv::flip(cv_ptr->image, cv_ptr->image, -1);//-1 for 2-axis flip
+	
+	//store to global variable:
 	camera_msg = cv_ptr->toImageMsg();
 }
 
@@ -51,9 +53,9 @@ void armed_callback(const std_msgs::Bool::ConstPtr& msg)
 void image_callback(const sensor_msgs::Image::ConstPtr& msg)
 {
 	downscale_image(msg);
-	image_pub.publish(camera_msg);
 	if(moving.data && !newBag)
     {
+		image_pub.publish(camera_msg);
         bag.write("usb_cam/image_raw",ros::Time::now(), camera_msg);
         bag.write("steering_pwm",ros::Time::now(), steering_msg);
     }
